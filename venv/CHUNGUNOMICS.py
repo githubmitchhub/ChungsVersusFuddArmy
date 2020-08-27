@@ -227,7 +227,7 @@ def main():
                 enemyX_change[i] = random.randint(11, 13) * -1
                 enemyY[i] += enemyY_change[i]
 
-        if score_value == 500:
+        if score_value == 400:
             num_of_enemies = 0
             fastbulletfont = pygame.font.Font('freesansbold.ttf', 24)
             fastbullet = fastbulletfont.render("FUDD ARMY DEFEATED! CHUNGRATS!", True, (255, 0, 0))
