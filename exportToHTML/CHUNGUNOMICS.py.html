@@ -1,0 +1,193 @@
+<html>
+<head>
+<title>CHUNGUNOMICS.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6897bb;}
+.s3 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+CHUNGUNOMICS.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pygame</span>
+<span class="s0">import </span><span class="s1">math</span>
+<span class="s0">import </span><span class="s1">random</span>
+<span class="s0">from </span><span class="s1">pygame </span><span class="s0">import </span><span class="s1">mixer</span>
+
+<span class="s1">pygame.init()</span>
+
+<span class="s1">screen = pygame.display.set_mode((</span><span class="s2">1024</span><span class="s0">, </span><span class="s2">768</span><span class="s1">))</span>
+
+<span class="s1">background = pygame.image.load(</span><span class="s3">'forest.jpg'</span><span class="s1">)</span>
+<span class="s1">gameIcon = pygame.image.load(</span><span class="s3">'chung.png'</span><span class="s1">)</span>
+<span class="s1">pygame.display.set_icon(gameIcon)</span>
+
+<span class="s1">mixer.music.load(</span><span class="s3">'benny_hill.wav'</span><span class="s1">)</span>
+<span class="s1">mixer.music.play(-</span><span class="s2">1</span><span class="s1">)</span>
+<span class="s1">pygame.mixer.music.set_volume(</span><span class="s2">.6</span><span class="s1">)</span>
+<span class="s1">sup = mixer.Sound(</span><span class="s3">'whatsup.wav'</span><span class="s1">)</span>
+<span class="s1">sup.set_volume(</span><span class="s2">.5</span><span class="s1">)</span>
+<span class="s1">sup.play()</span>
+
+<span class="s0">global </span><span class="s1">bullet_Sound</span>
+<span class="s1">bullet_Sound = mixer.Sound(</span><span class="s3">'poo.wav'</span><span class="s1">)</span>
+<span class="s1">bullet_Sound.set_volume(</span><span class="s2">.4</span><span class="s1">)</span>
+
+<span class="s1">pygame.display.set_caption(</span><span class="s3">&quot;CHUNGUNOMICS&quot;</span><span class="s1">)</span>
+
+<span class="s1">playerImg = pygame.image.load(</span><span class="s3">'chung.png'</span><span class="s1">)</span>
+<span class="s1">playerX = </span><span class="s2">512</span>
+<span class="s1">playerY = </span><span class="s2">620</span>
+<span class="s1">playerX_change = </span><span class="s2">0</span>
+
+<span class="s1">enemyImg = []</span>
+<span class="s1">enemyX = []</span>
+<span class="s1">enemyY = []</span>
+<span class="s1">enemyX_change = []</span>
+<span class="s1">enemyY_change = []</span>
+<span class="s1">num_of_enemies = </span><span class="s2">35</span>
+
+<span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range(num_of_enemies):</span>
+    <span class="s1">enemyImg.append(pygame.image.load(</span><span class="s3">'pngbarn.png'</span><span class="s1">))</span>
+    <span class="s1">enemyX.append(random.randint(</span><span class="s2">0</span><span class="s0">, </span><span class="s2">960</span><span class="s1">))</span>
+    <span class="s1">enemyY.append(random.randint(</span><span class="s2">20</span><span class="s0">, </span><span class="s2">200</span><span class="s1">))</span>
+    <span class="s1">enemyX_change.append(random.randint(</span><span class="s2">8</span><span class="s0">, </span><span class="s2">15</span><span class="s1">))</span>
+    <span class="s1">enemyY_change.append(</span><span class="s2">30</span><span class="s1">)</span>
+
+<span class="s1">bulletImg = pygame.image.load(</span><span class="s3">'imageedit_3_4617970527.png'</span><span class="s1">)</span>
+<span class="s1">bulletX = </span><span class="s2">0</span>
+<span class="s1">bulletY = </span><span class="s2">600</span>
+<span class="s1">bulletX_change = </span><span class="s2">0</span>
+<span class="s1">bulletY_change = </span><span class="s2">50</span>
+<span class="s1">bullet_state = </span><span class="s3">&quot;ready&quot;</span>
+
+<span class="s1">score_value = </span><span class="s2">0</span>
+
+<span class="s1">font = pygame.font.Font(</span><span class="s3">'freesansbold.ttf'</span><span class="s0">, </span><span class="s2">32</span><span class="s1">)</span>
+<span class="s1">textX = </span><span class="s2">10</span>
+<span class="s1">textY = </span><span class="s2">10</span>
+
+<span class="s1">over_font = pygame.font.Font(</span><span class="s3">'freesansbold.ttf'</span><span class="s0">, </span><span class="s2">13</span><span class="s1">)</span>
+
+
+<span class="s0">def </span><span class="s1">show_score(x</span><span class="s0">, </span><span class="s1">y):</span>
+    <span class="s1">score = font.render(</span><span class="s3">&quot;Fudd Death = &quot; </span><span class="s1">+ str(score_value)</span><span class="s0">, True, </span><span class="s1">(</span><span class="s2">255</span><span class="s0">, </span><span class="s2">255</span><span class="s0">, </span><span class="s2">255</span><span class="s1">))</span>
+    <span class="s1">screen.blit(score</span><span class="s0">, </span><span class="s1">(x</span><span class="s0">, </span><span class="s1">y))</span>
+
+
+<span class="s0">def </span><span class="s1">game_over_text(x</span><span class="s0">, </span><span class="s1">y):</span>
+    <span class="s1">over_text = over_font.render(</span><span class="s3">&quot;YOU HAVE FAILED THE CLASS OF CHUNGUNOMICS. SPACEBAR THROWS A CARROT&quot;</span><span class="s0">, True, </span><span class="s1">(</span><span class="s2">255</span><span class="s0">, </span><span class="s2">255</span><span class="s0">, </span><span class="s2">255</span><span class="s1">))</span>
+    <span class="s1">screen.blit(over_text</span><span class="s0">, </span><span class="s1">(</span><span class="s2">300</span><span class="s0">, </span><span class="s2">384</span><span class="s1">))</span>
+
+
+<span class="s0">def </span><span class="s1">player(x</span><span class="s0">, </span><span class="s1">y):</span>
+    <span class="s1">screen.blit(playerImg</span><span class="s0">, </span><span class="s1">(x</span><span class="s0">, </span><span class="s1">y))</span>
+
+
+<span class="s0">def </span><span class="s1">enemy(x</span><span class="s0">, </span><span class="s1">y</span><span class="s0">, </span><span class="s1">i):</span>
+    <span class="s1">screen.blit(enemyImg[i]</span><span class="s0">, </span><span class="s1">(x</span><span class="s0">, </span><span class="s1">y))</span>
+
+
+<span class="s0">def </span><span class="s1">fire_bullet(x</span><span class="s0">, </span><span class="s1">y):</span>
+    <span class="s0">global </span><span class="s1">bullet_state</span>
+    <span class="s1">bullet_state = </span><span class="s3">&quot;fire&quot;</span>
+    <span class="s1">screen.blit(bulletImg</span><span class="s0">, </span><span class="s1">(x + </span><span class="s2">25</span><span class="s0">, </span><span class="s1">y + </span><span class="s2">10</span><span class="s1">))</span>
+
+
+<span class="s0">def </span><span class="s1">isCollision(enemyX</span><span class="s0">, </span><span class="s1">enemyY</span><span class="s0">, </span><span class="s1">bulletX</span><span class="s0">, </span><span class="s1">bulletY):</span>
+    <span class="s1">distance = math.sqrt((math.pow(enemyX - bulletX</span><span class="s0">, </span><span class="s2">2</span><span class="s1">)) + math.pow(enemyY - bulletY</span><span class="s0">, </span><span class="s2">2</span><span class="s1">))</span>
+    <span class="s0">if </span><span class="s1">distance &lt; </span><span class="s2">30</span><span class="s1">:</span>
+        <span class="s0">return True</span>
+    <span class="s0">else</span><span class="s1">:</span>
+        <span class="s0">return False</span>
+
+
+<span class="s1">running = </span><span class="s0">True</span>
+
+<span class="s0">while </span><span class="s1">running:</span>
+
+    <span class="s1">screen.fill((</span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span><span class="s1">))</span>
+    <span class="s1">screen.blit(background</span><span class="s0">, </span><span class="s1">(</span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span><span class="s1">))</span>
+    <span class="s0">for </span><span class="s1">event </span><span class="s0">in </span><span class="s1">pygame.event.get():</span>
+        <span class="s0">if </span><span class="s1">event.type == pygame.QUIT:</span>
+            <span class="s1">running = </span><span class="s0">False</span>
+        <span class="s0">if </span><span class="s1">event.type == pygame.KEYDOWN:</span>
+            <span class="s0">if </span><span class="s1">event.key == pygame.K_LEFT:</span>
+                <span class="s1">playerX_change = -</span><span class="s2">8</span>
+            <span class="s0">if </span><span class="s1">event.key == pygame.K_RIGHT:</span>
+                <span class="s1">playerX_change = </span><span class="s2">8</span>
+            <span class="s0">if </span><span class="s1">event.key == pygame.K_SPACE:</span>
+                <span class="s0">if </span><span class="s1">bullet_state == </span><span class="s3">&quot;ready&quot;</span><span class="s1">:</span>
+                    <span class="s1">bullet_Sound.play()</span>
+
+                    <span class="s1">bulletX = playerX</span>
+                <span class="s1">fire_bullet(bulletX</span><span class="s0">, </span><span class="s1">bulletY)</span>
+
+        <span class="s0">if </span><span class="s1">event.type == pygame.KEYUP:</span>
+            <span class="s0">if </span><span class="s1">event.key == pygame.K_LEFT </span><span class="s0">or </span><span class="s1">event.key == pygame.K_RIGHT:</span>
+                <span class="s1">playerX_change = </span><span class="s2">0</span>
+
+    <span class="s1">playerX += playerX_change</span>
+
+    <span class="s0">if </span><span class="s1">playerX &lt;= </span><span class="s2">0</span><span class="s1">:</span>
+        <span class="s1">playerX = </span><span class="s2">920</span>
+    <span class="s0">elif </span><span class="s1">playerX &gt;= </span><span class="s2">920</span><span class="s1">:</span>
+        <span class="s1">playerX = </span><span class="s2">0</span>
+
+    <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range(num_of_enemies):</span>
+
+        <span class="s0">if </span><span class="s1">enemyY[i] &gt; </span><span class="s2">560</span><span class="s1">:</span>
+            <span class="s0">for </span><span class="s1">j </span><span class="s0">in </span><span class="s1">range(num_of_enemies):</span>
+                <span class="s1">enemyY[j] = </span><span class="s2">2000</span>
+                <span class="s1">playerImg = pygame.image.load(</span><span class="s3">'imageedit_2_7490140388.png'</span><span class="s1">)</span>
+                <span class="s1">game_over_text(</span><span class="s2">400</span><span class="s0">, </span><span class="s2">384</span><span class="s1">)</span>
+
+                <span class="s1">fudd_Sound = mixer.Sound(</span><span class="s3">'elmer07.wav'</span><span class="s1">)</span>
+                <span class="s1">fudd_Sound.set_volume(</span><span class="s2">.2</span><span class="s1">)</span>
+                <span class="s1">fudd_Sound.play(</span><span class="s2">1</span><span class="s1">)</span>
+
+                <span class="s0">if </span><span class="s1">pygame.mixer.music.get_busy():</span>
+                    <span class="s1">pygame.mixer.music.stop()</span>
+
+            <span class="s0">break</span>
+
+        <span class="s1">enemyX[i] += enemyX_change[i]</span>
+        <span class="s0">if </span><span class="s1">enemyX[i] &lt;= </span><span class="s2">0</span><span class="s1">:</span>
+            <span class="s1">enemyX_change[i] = random.randint(</span><span class="s2">6</span><span class="s0">, </span><span class="s2">12</span><span class="s1">)</span>
+            <span class="s1">enemyY[i] += enemyY_change[i]</span>
+        <span class="s0">elif </span><span class="s1">enemyX[i] &gt;= </span><span class="s2">960</span><span class="s1">:</span>
+            <span class="s1">enemyX_change[i] = random.randint(</span><span class="s2">6</span><span class="s0">, </span><span class="s2">12</span><span class="s1">) * -</span><span class="s2">1</span>
+            <span class="s1">enemyY[i] += enemyY_change[i]</span>
+
+        <span class="s1">collision = isCollision(enemyX[i]</span><span class="s0">, </span><span class="s1">enemyY[i]</span><span class="s0">, </span><span class="s1">bulletX</span><span class="s0">, </span><span class="s1">bulletY)</span>
+        <span class="s0">if </span><span class="s1">collision:</span>
+            <span class="s1">bulletY = </span><span class="s2">600</span>
+            <span class="s1">bullet_state = </span><span class="s3">&quot;ready&quot;</span>
+            <span class="s1">score_value += </span><span class="s2">1</span>
+            <span class="s1">enemyX[i] = random.randint(</span><span class="s2">0</span><span class="s0">, </span><span class="s2">960</span><span class="s1">)</span>
+            <span class="s1">enemyY[i] = random.randint(</span><span class="s2">0</span><span class="s0">, </span><span class="s2">50</span><span class="s1">)</span>
+            <span class="s1">fudd2_Sound = mixer.Sound(</span><span class="s3">'Pling-KevanGC-1485374730.wav'</span><span class="s1">)</span>
+            <span class="s1">fudd2_Sound.set_volume(</span><span class="s2">.8</span><span class="s1">)</span>
+            <span class="s1">fudd2_Sound.play()</span>
+
+        <span class="s1">enemy(enemyX[i]</span><span class="s0">, </span><span class="s1">enemyY[i]</span><span class="s0">, </span><span class="s1">i)</span>
+
+    <span class="s0">if </span><span class="s1">bulletY &lt;= </span><span class="s2">0</span><span class="s1">:</span>
+        <span class="s1">bulletY = </span><span class="s2">600</span>
+        <span class="s1">bullet_state = </span><span class="s3">&quot;ready&quot;</span>
+    <span class="s0">if </span><span class="s1">bullet_state == </span><span class="s3">&quot;fire&quot;</span><span class="s1">:</span>
+        <span class="s1">fire_bullet(bulletX</span><span class="s0">, </span><span class="s1">bulletY)</span>
+        <span class="s1">bulletY -= bulletY_change</span>
+
+    <span class="s1">player(playerX</span><span class="s0">, </span><span class="s1">playerY)</span>
+    <span class="s1">show_score(textX</span><span class="s0">, </span><span class="s1">textY)</span>
+    <span class="s1">pygame.display.update()</span>
+</pre>
+</body>
+</html>
