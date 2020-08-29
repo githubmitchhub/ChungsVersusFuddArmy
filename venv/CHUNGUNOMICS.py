@@ -9,6 +9,12 @@ mixer.music.load('Tribal Ritual.wav')
 mixer.music.play(-1)
 pygame.mixer.music.set_volume(.3)
 
+screen = pygame.display.set_mode((1024, 768))
+
+background = pygame.image.load('forest.jpg')
+gameIcon = pygame.image.load('chung.png')
+pygame.display.set_icon(gameIcon)
+
 
 def main():
     sup = mixer.Sound('whatsup.wav')
@@ -18,14 +24,8 @@ def main():
     fudd_Sound.set_volume(.2)
     fudd_Sound.play()
 
-    screen = pygame.display.set_mode((1024, 768))
-
-    background = pygame.image.load('forest.jpg')
-    gameIcon = pygame.image.load('chung.png')
-    pygame.display.set_icon(gameIcon)
-
-
-
+    global game_over
+    game_over = False
     global bullet_state
     global bullet_Sound
     bullet_Sound = mixer.Sound('poo.wav')
@@ -50,11 +50,8 @@ def main():
         enemyImg.append(pygame.image.load('pngbarn.png'))
         enemyX.append(random.randint(0, 960))
         enemyY.append(random.randint(20, 25))
-        enemyX_change.append(random.randint(5, 13))
+        enemyX_change.append(random.randint(3, 9))
         enemyY_change.append(25)
-
-    if score_value > 5:
-        enemyImg.append(pygame.image.load('imageedit_2_7490140388.png'))
 
     bulletImg = pygame.image.load('imageedit_3_4617970527.png')
     bulletX = 0
@@ -79,6 +76,7 @@ def main():
     def game_over_text(x, y):
         over_text = over_font.render("F1 TO RETRY", True, (255, 0, 0))
         screen.blit(over_text, (x, y))
+
     def game_over_text2(x, y):
         over_2 = over2.render("C=BATTLECRY", True, (255, 0, 0))
         screen.blit(over_2, (x, y))
@@ -100,6 +98,10 @@ def main():
             return True
         else:
             return False
+
+    if num_of_enemies == 0:
+        mixer.music.load('cartoon-birds-2_daniel-simion.wav')
+        mixer.music.play(-1)
 
     running = True
 
@@ -140,7 +142,8 @@ def main():
 
         if num_of_enemies == 0:
             game_over_text(200, 300)
-            game_over_text2(180,400)
+            game_over_text2(180, 400)
+            game_over = True
 
             playerImg = pygame.image.load('imageedit_2_7490140388.png')
             for event in pygame.event.get():
@@ -198,28 +201,29 @@ def main():
         if score_value > 250:
             bulletY_change = 50
 
-        global fastbulletfont
+        # global fastbulletfont
 
-        if score_value > 50 and score_value <= 53:
-            expsound = mixer.Sound('2scream.wav')
-            expsound.set_volume(.05)
-            expsound.play(1, 2000)
+        if score_value > 50 and score_value <= 52:
+            scream = mixer.Sound('2scream.wav')
+            scream.set_volume(.05)
+            scream.play(1)
             fastbulletfont = pygame.font.Font('freesansbold.ttf', 32)
             fastbullet = fastbulletfont.render("FASTER BULLETS UNLOCKED!", True, (255, 0, 0))
             screen.blit(fastbullet, (300, 400))
 
-        if score_value > 100 and score_value <= 103:
+        if score_value > 100 and score_value <= 102:
             fastbullet = fastbulletfont.render("FASTER BULLETS UNLOCKED!", True, (255, 0, 0))
             screen.blit(fastbullet, (300, 400))
-            sup.play()
+            sup.play(1)
 
-        if score_value > 249 and score_value <= 252:
-            expsound = mixer.Sound('fire-truck-air-horn_daniel-simion.wav')
-            expsound.set_volume(.1)
-            expsound.play()
+        if score_value > 250 and score_value <= 252:
+            truck = mixer.Sound('fire-truck-air-horn_daniel-simion.wav')
+            truck.set_volume(.1)
+            truck.play(1)
             fastbulletfont = pygame.font.Font('freesansbold.ttf', 40)
-            fastbullet = fastbulletfont.render("       PAIN        TRAIN", True, (255, 0, 0))
+            fastbullet = fastbulletfont.render("       PAIN     TRAIN", True, (255, 0, 0))
             screen.blit(fastbullet, (300, 400))
+        if score_value > 250:
             if enemyX[i] <= 0:
                 enemyX_change[i] = random.randint(11, 13)
                 enemyY[i] += enemyY_change[i]
